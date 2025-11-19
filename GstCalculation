@@ -1,0 +1,43 @@
+package com.misys.tiplus2.customisation.pane;
+ 
+ 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+ 
+import com.misys.tiplus2.customisation.FieldCodeType;
+ 
+public class CustomLCPane extends EventPane {
+ 
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(CustomLCPane.class);
+ 
+    @Override
+    public void onCalculateGSTLAYOUTButton() {
+            LOG.info("=================Calculate GST button clicked===================");
+            try {
+                String gstStr = getGST();
+                String amountStr = getDriverWrapper().getEventFieldAsText("AMT", "v", "");
+                String amount2Str = getDriverWrapper().getEventFieldAsText("AMT", FieldCodeType.Money.getTypeString(), "");
+                LOG.info("amountStr,amount2Str============", amountStr, amount2Str);
+                double gst = 0.0;
+                double amount = 0.0;
+                if (gstStr != null && !gstStr.trim().isEmpty()) {
+                    gst = Double.parseDouble(gstStr.trim());
+                }
+                if (amountStr != null && !amountStr.trim().isEmpty()) {
+        		    amountStr = amountStr.replaceAll("[^0-9.]", "").trim();
+        		    if (!amountStr.isEmpty()) {
+        		        amount = Double.parseDouble(amountStr);
+        		    }
+        		}
+                String total = String.valueOf(amount + amount * gst / 100);
+                getTotalAmount();
+                setTotalAmount(total);
+
+                setTotalAmount(String.valueOf(total));
+                LOG.info("Amount: {}, GST: {}, Total: {}============", amount, gst);
+            } catch (Exception e) {
+                LOG.error("Error calculating GST total: {}==================", e.getMessage(), e);
+            }
+        }
+}
